@@ -1,8 +1,25 @@
-<h1>Login</h1>
+{% load bootstrap3 %}
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-<form action='/login/' method="post">
-{% csrf_token %}
-{{form.as_p}}
-<input type="submit" value="login" />
-</form>
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% bootstrap_messages %}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        <form action='/login/' method="post" class="form">
+            {% csrf_token %}
+            {% bootstrap_form form%}
+            {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                ورود
+            </button>
+            {% endbuttons %}
+
+        </form>
+        </div>
+    </div>
+</div>

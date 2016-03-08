@@ -14,6 +14,8 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.contrib.auth import login as auth_login
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect
+
 
 
 
@@ -30,20 +32,23 @@ def signup(request):
             user = User(**user_form.cleaned_data)
             user.username = user.email
             user.set_password(user.password)
-            user.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.is_active = False
-            salt = sha.new(str(random.random())).hexdigest()[:5]
-            activation_key = sha.new(salt+user.username).hexdigest()
-            profile.activation_key = activation_key
-            # Now we save the UserProfile model instance.
-            profile.save()
-            s = socket.gethostbyname(socket.gethostname())
-            activation_url = "http://"+str(s)+"/verify/" + activation_key
-            send_mail('Activation link', activation_url , 'moein.zeraatkar@gmail.comf',
-                    [user.email], fail_silently=False)
-            registered = True
+            if User.objects.filter(email = user.email):
+                errors = "already have this"
+            else:
+                user.save()
+                profile = profile_form.save(commit=False)
+                profile.user = user
+                profile.is_active = False
+                salt = sha.new(str(random.random())).hexdigest()[:5]
+                activation_key = sha.new(salt+user.username).hexdigest()
+                profile.activation_key = activation_key
+                # Now we save the UserProfile model instance.
+                profile.save()
+                s = socket.gethostbyname(socket.gethostname())
+                activation_url = "http://"+str(s)+"/verify/" + activation_key
+                send_mail('Activation link', activation_url , 'moein.zeraatkar@gmail.comf',
+                        [user.email], fail_silently=False)
+                registered = True
         else:
             errors = str(user_form.errors) + str(profile_form.errors)
     user_form = UserForm()
@@ -61,10 +66,13 @@ def verify(request, token):
     userprofile = userprofilelist[0]
     userprofile.is_active = True
     userprofile.save()
+    auth_login(request,userprofile)
     return HttpResponse("user " + str(userprofile) + " activated")
 
 
 def login(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/')
     errors = []
     if request.method == 'POST':
         loginform = LoginForm(data=request.POST)
