@@ -2,3 +2,4 @@ quizup/__init__.py
 .idea
 .DS_Store
 db.sqlite3
+*.pyc
