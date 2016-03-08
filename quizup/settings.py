@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
-
+from quizup.__init__ import *
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
