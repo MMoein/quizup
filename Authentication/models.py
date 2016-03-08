@@ -9,3 +9,6 @@ class UserProfile(models.Model):
     nationality = CountryField()
     is_active = models.BooleanField()
     activation_key = models.CharField(max_length=40)
+
+    def __str__(self):
+          return "%s's profile " % self.user

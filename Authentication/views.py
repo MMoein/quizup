@@ -46,3 +46,14 @@ def signup(request):
     return render_to_response('Authentication/signup.html',
                               {'user_form':user_form, 'profile_form':profile_form, 'registered':registered},
                               context_instance=RequestContext(request))
+
+
+def verify(request, token):
+    userprofilelist = UserProfile.objects.filter(
+        activation_key = token)
+    if not userprofilelist:
+        return HttpResponse("Error")
+    userprofile = userprofilelist[0]
+    userprofile.is_active = True
+    userprofile.save()
+    return HttpResponse("user " + str(userprofile) + " activated")
