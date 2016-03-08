@@ -8,7 +8,7 @@
         {% if registered %}
         <strong>an activation link sent to your profile!</strong>
         {% else %}
-
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         <form id="user_form" method="post" action="/signup/"
                 enctype="multipart/form-data">
 

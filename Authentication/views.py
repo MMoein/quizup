@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404
 
 def signup(request):
     registered = False
+    errors = []
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
         profile_form = UserProfileForm(data=request.POST)
@@ -44,11 +45,11 @@ def signup(request):
                     [user.email], fail_silently=False)
             registered = True
         else:
-            print user_form.errors, profile_form.errors
+            errors = str(user_form.errors) + str(profile_form.errors)
     user_form = UserForm()
     profile_form = UserProfileForm()
     return render_to_response('Authentication/signup.html',
-                              {'user_form':user_form, 'profile_form':profile_form, 'registered':registered},
+                              {'user_form':user_form, 'profile_form':profile_form, 'registered':registered, 'error_message':errors},
                               context_instance=RequestContext(request))
 
 
@@ -64,19 +65,24 @@ def verify(request, token):
 
 
 def login(request):
+    errors = []
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            up = get_object_or_404(UserProfile, user = user)
-            if up.is_active is True:
-                auth_login(request,user)
-                return redirect('/')
+        loginform = LoginForm(data=request.POST)
+        if loginform.is_valid():
+            username = loginform.cleaned_data['username']
+            password = loginform.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                up = get_object_or_404(UserProfile, user = user)
+                if up.is_active is True:
+                    auth_login(request,user)
+                    return redirect('/')
+                else:
+                    return HttpResponse("username is not active ! check your email plz!")
             else:
-                return HttpResponse("username is not active ! check your email plz!")
+                return HttpResponse("username is not valid")
         else:
-            return HttpResponse("username is not valid")
+            errors = loginform.errors
     return render_to_response('Authentication/login.html',
-                              {},
+                              {'form':LoginForm(), 'error_message':errors},
                               context_instance=RequestContext(request))
