@@ -101,3 +101,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# # To test emaily functions:
+EMAIL_HOST_USER = 'moein.zeraatkar@gmail.com'
+EMAIL_HOST_PASSWORD = 'moeingmail'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'moein.zeraatkar@gmail.com'
+# EMAIL_HOST_PASSWORD = 'mohammad2980574228171717'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'moein.zeraatkar@gmail.com'
+SERVER_EMAIL = 'moein.zeraatkar@gmail.com'
