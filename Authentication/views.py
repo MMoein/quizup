@@ -1,5 +1,6 @@
 import socket
 
+from django.contrib.auth import authenticate
 from django.shortcuts import render
 from .forms import *
 
@@ -11,6 +12,9 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
+from django.contrib.auth import login as auth_login
+from django.shortcuts import get_object_or_404
+
 
 
 def signup(request):
@@ -57,3 +61,22 @@ def verify(request, token):
     userprofile.is_active = True
     userprofile.save()
     return HttpResponse("user " + str(userprofile) + " activated")
+
+
+def login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            up = get_object_or_404(UserProfile, user = user)
+            if up.is_active is True:
+                auth_login(request,user)
+                return redirect('/')
+            else:
+                return HttpResponse("username is not active ! check your email plz!")
+        else:
+            return HttpResponse("username is not valid")
+    return render_to_response('Authentication/login.html',
+                              {},
+                              context_instance=RequestContext(request))
