@@ -1,6 +1,7 @@
 import socket
 
 from django.contrib.auth import authenticate
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from .forms import *
 
@@ -51,11 +52,13 @@ def signup(request):
                 registered = True
         else:
             errors = str(user_form.errors) + str(profile_form.errors)
-    user_form = UserForm()
-    profile_form = UserProfileForm()
-    return render_to_response('Authentication/signup.html',
-                              {'user_form':user_form, 'profile_form':profile_form, 'registered':registered, 'error_message':errors},
-                              context_instance=RequestContext(request))
+        return redirect(reverse('login'))
+    elif request.method == 'GET':
+        user_form = UserForm()
+        profile_form = UserProfileForm()
+        return render_to_response('Authentication/signup.html',
+                                {'user_form':user_form, 'profile_form':profile_form, 'registered':registered, 'error_message':errors},
+                                context_instance=RequestContext(request))
 
 
 def verify(request, token):

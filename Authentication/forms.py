@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from Authentication.models import UserProfile
 from django.contrib.auth.models import User
 from django import forms
@@ -9,13 +11,16 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'first_name', 'last_name')
+        fields = ('first_name', 'last_name', 'email', 'password')
 
 
 class UserProfileForm(forms.ModelForm):
+    radio_choices = [('MALE', 'MALE'), ('FEMALE', 'FEMALE')]
+    gender = forms.ChoiceField(label=u'جنسیت', choices=radio_choices, widget=forms.RadioSelect())
+
     class Meta:
         model = UserProfile
-        fields = ('sex', 'nationality')
+        fields = ('gender', 'nationality')
 
 
 class LoginForm(forms.Form):
