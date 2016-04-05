@@ -15,3 +15,6 @@ class Question(models.Model):
     choice2 = models.CharField(max_length=255, verbose_name="Dummy answer1")
     choice3 = models.CharField(max_length=255, verbose_name="Dummy answer2")
     choice4 = models.CharField(max_length=255, verbose_name="Dummy answer3")
+
+    def __str__(self):
+        return self.text
