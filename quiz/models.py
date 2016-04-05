@@ -7,6 +7,8 @@ class QuestionCategory(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return unicode(self.name)
 
 class Question(models.Model):
     text = models.TextField(verbose_name="Question")

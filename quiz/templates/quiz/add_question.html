@@ -1,22 +1,25 @@
-<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block extra_head %}
 
 {% load bootstrap3 %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
 
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+<title>سوال جدید</title>
+{% endblock %}
 
-{% bootstrap_messages %}
+{% block body %}
 
-<html>
-<head>
-    <title>ثبت نام</title>
-</head>
-
-<body>
-{% if registered %}
-<strong>an activation link sent to your profile!</strong>
-{% else %}
-
+{% if messages %}
+<div class="alert alert-success">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <p>{{ messages }}</p>
+</div>
+{% endif %}
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -25,10 +28,6 @@
                   enctype="multipart/form-data">
                 {% csrf_token %}
                 {% bootstrap_form question_form %}
-                <!--{{ user_form.as_p }}-->
-                <!--{{ profile_form.as_p }}-->
-
-                <!--<input type="submit" name="submit" value="Register" />-->
                 {% buttons %}
                 <button type="submit" class="btn btn-primary">
                     اضافه کردن سوال
@@ -38,6 +37,5 @@
         </div>
     </div>
 </div>
-{% endif %}
-</body>
-</html>
+
+{% endblock %}

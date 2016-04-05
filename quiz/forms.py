@@ -1,11 +1,21 @@
+# -*- coding: utf-8 -*-
+
 from django import forms
 
 from quiz.models import Question, QuestionCategory
 
 
 class QuestionForm(forms.ModelForm):
-    category = forms.ModelChoiceField(label="Question Category",
-                                      queryset=QuestionCategory.objects.all())
+    category = forms.ModelChoiceField(queryset=QuestionCategory.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super(QuestionForm, self).__init__(*args, **kwargs)
+        self.fields['category'].label = u'دسته ی سوال'
+        self.fields['text'].label = u'متن سوال'
+        self.fields['choice1'].label = u'گزینه اول'
+        self.fields['choice2'].label = u'گزینه دوم'
+        self.fields['choice3'].label = u'گزینه سوم'
+        self.fields['choice4'].label = u'گزینه چهارم'
 
     class Meta:
         model = Question
@@ -13,6 +23,11 @@ class QuestionForm(forms.ModelForm):
 
 
 class CategoryForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = u'نام دسته'
+
     class Meta:
         model = QuestionCategory
         fields = ('name',)

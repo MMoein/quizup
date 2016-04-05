@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect, render_to_response
 
@@ -12,29 +14,27 @@ def add_question(request):
     if not request.user.is_authenticated():
         return redirect(reverse('login'))
 
-    registered = False
     errors = []
 
     if request.method == 'POST':
         question_form = QuestionForm(data=request.POST)
-        # profile_form = UserProfileForm(data=request.POST)
 
-        # If the two forms are valid...
         if question_form.is_valid():
             question_form.save()
-            return render_to_response('quiz/add_success.html',
-                                      {'error_message': question_form.errors},
+            new_question_form = QuestionForm()
+            return render_to_response('quiz/add_question.html',
+                                      {'question_form': new_question_form,
+                                       'messages': u'سوال جدید اضافه شد'},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('quiz/add_question.html',
-                                      {'question_form': question_form, 'registered': registered,
+                                      {'question_form': question_form,
                                        'error_message': question_form.errors},
                                       context_instance=RequestContext(request))
     elif request.method == 'GET':
         question_form = QuestionForm()
-        # profile_form = UserProfileForm()
         return render_to_response('quiz/add_question.html',
-                                  {'question_form': question_form, 'registered': registered, 'error_message': errors},
+                                  {'question_form': question_form, 'error_message': errors},
                                   context_instance=RequestContext(request))
 
 
@@ -42,28 +42,28 @@ def add_category(request):
     if not request.user.is_authenticated():
         return redirect(reverse('login'))
 
-    registered = False
     errors = []
     if request.method == 'POST':
         category_form = CategoryForm(data=request.POST)
-        # profile_form = UserProfileForm(data=request.POST)
 
-        # If the two forms are valid...
         if category_form.is_valid():
             category_form.save()
-            return render_to_response('quiz/add_success.html',
-                                      {'error_message': category_form.errors},
+            new_category_form = CategoryForm()
+            return render_to_response('quiz/add_category.html',
+                                      {'category_form': new_category_form,
+                                       'messages': u'دسته جدید اضافه شد',
+                                       'error_message': category_form.errors},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('quiz/add_category.html',
-                                      {'category_form': category_form, 'registered': registered,
+                                      {'category_form': category_form,
                                        'error_message': category_form.errors},
                                       context_instance=RequestContext(request))
     elif request.method == 'GET':
         if not request.user.is_authenticated():
             return redirect(reverse('login'))
         category_form = CategoryForm
-        # profile_form = UserProfileForm()
         return render_to_response('quiz/add_category.html',
-                                  {'category_form': category_form, 'registered': registered, 'error_message': errors},
+                                  {'category_form': category_form,
+                                   'error_message': errors},
                                   context_instance=RequestContext(request))
