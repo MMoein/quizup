@@ -95,5 +95,5 @@ def login(request):
         else:
             errors = loginform.errors
     return render_to_response('Authentication/login.html',
-                              {'form':LoginForm(), 'error_message':errors},
+                              {'form': LoginForm(), 'error_message': errors},
                               context_instance=RequestContext(request))
