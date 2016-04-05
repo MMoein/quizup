@@ -3,6 +3,7 @@
 from django import forms
 
 from quiz.models import Question, QuestionCategory
+from Authentication.models import UserProfile
 
 
 class QuestionForm(forms.ModelForm):
@@ -31,3 +32,11 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = QuestionCategory
         fields = ('name',)
+
+class ChallengeForm(forms.Form):
+    category = forms.ModelChoiceField(queryset=QuestionCategory.objects.all())
+    challengee = forms.CharField()
+    def __init__(self, *args, **kwargs):
+        super(ChallengeForm, self).__init__(*args, **kwargs)
+        self.fields['category'].label = u'دسته ی سوال'
+        self.fields['challengee'].label = u'حریف'
