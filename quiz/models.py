@@ -30,6 +30,7 @@ class ListField(models.TextField):
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
 
+
 class QuestionCategory(models.Model):
     name = models.CharField(verbose_name="name", max_length=100, default="")
 
@@ -39,6 +40,7 @@ class QuestionCategory(models.Model):
     def __unicode__(self):
         return unicode(self.name)
 
+
 class Question(models.Model):
     text = models.TextField(verbose_name="Question")
     category = models.ForeignKey(QuestionCategory, verbose_name="Category")
@@ -46,8 +48,10 @@ class Question(models.Model):
     choice2 = models.CharField(max_length=255, verbose_name="Dummy answer1")
     choice3 = models.CharField(max_length=255, verbose_name="Dummy answer2")
     choice4 = models.CharField(max_length=255, verbose_name="Dummy answer3")
+
     def __str__(self):
         return self.text
+
 
 class Quiz(models.Model):
     category = models.ForeignKey(QuestionCategory, verbose_name="Category")
@@ -64,11 +68,12 @@ class Quiz(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             q = Question.objects.filter(category=self.category).values_list('pk', flat=True)
-            qlist = random.sample(range(0,len(q)) , 1)
+            qlist = random.sample(range(0, len(q)), 1)
             self.questions = []
             for pk in qlist:
                 self.questions.append(q[pk])
 
         super(Quiz, self).save(*args, **kwargs)
+
     def __str__(self):
         return str(self.pk)

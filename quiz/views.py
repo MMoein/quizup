@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, render_to_response
 
 # Create your views here.
 from django.template.context import RequestContext
+from django.views.decorators.http import require_POST
 
 from quiz.forms import QuestionForm, CategoryForm
 from quiz.models import Question
@@ -12,6 +13,12 @@ from quiz.models import Question
 
 def home(request):
     return render_to_response('quiz/home.html', context_instance=RequestContext(request))
+
+@require_POST
+def search(request):
+    search_query = request.POST['query']
+    questions = Question.objects.filter(text__contains=search_query)
+    return render_to_response('quiz/search.html', {'questions': questions}, context_instance=RequestContext(request))
 
 
 def add_question(request):

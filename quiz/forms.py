@@ -12,10 +12,10 @@ class QuestionForm(forms.ModelForm):
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['category'].label = u'دسته ی سوال'
         self.fields['text'].label = u'متن سوال'
-        self.fields['choice1'].label = u'گزینه اول'
-        self.fields['choice2'].label = u'گزینه دوم'
-        self.fields['choice3'].label = u'گزینه سوم'
-        self.fields['choice4'].label = u'گزینه چهارم'
+        self.fields['choice1'].label = u'جواب درست'
+        self.fields['choice2'].label = u'جواب غلظ'
+        self.fields['choice3'].label = u'جواب غلظ'
+        self.fields['choice4'].label = u'جواب غلظ'
 
     class Meta:
         model = Question
