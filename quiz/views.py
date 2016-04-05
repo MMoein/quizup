@@ -10,6 +10,10 @@ from quiz.forms import QuestionForm, CategoryForm
 from quiz.models import Question
 
 
+def home(request):
+    return render_to_response('quiz/home.html', context_instance=RequestContext(request))
+
+
 def add_question(request):
     if not request.user.is_authenticated():
         return redirect(reverse('login'))

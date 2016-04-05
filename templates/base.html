@@ -3,7 +3,7 @@
 <head lang="en">
  {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body style="overflow: hidden;">
 {% block header %}
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
@@ -20,12 +20,19 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav" >
+                    {% if not user.is_authenticated %}
                     <li>
                         <a href="/signup">ثبت‌نام</a>
                     </li>
                     <li>
                         <a href="/login">ورود</a>
                     </li>
+                    {%else%}
+                    <li>
+                        <a href="/logout">خروج</a>
+                    </li>
+                    {% endif %}
+
                 </ul>
             </div>
             <!-- /.navbar-collapse -->

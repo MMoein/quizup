@@ -1,6 +1,6 @@
 import socket
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout as l
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from .forms import *
@@ -84,7 +84,7 @@ def login(request):
             password = loginform.cleaned_data['password']
             user = authenticate(username=username, password=password)
             if user is not None:
-                up = get_object_or_404(UserProfile, user = user)
+                up = get_object_or_404(UserProfile, user=user)
                 if up.is_active is True:
                     auth_login(request,user)
                     return redirect('/')
@@ -97,3 +97,8 @@ def login(request):
     return render_to_response('Authentication/login.html',
                               {'form': LoginForm(), 'error_message': errors},
                               context_instance=RequestContext(request))
+
+
+def logout(request):
+    l(request)
+    return redirect(reverse('homepage'))
