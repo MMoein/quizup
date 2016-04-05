@@ -1,5 +1,6 @@
 import socket
 
+from django.conf.global_settings import DEFAULT_FROM_EMAIL
 from django.contrib.auth import authenticate, logout as l
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -47,7 +48,7 @@ def signup(request):
                 profile.save()
                 s = socket.gethostbyname(socket.gethostname())
                 activation_url = "http://"+str(s)+"/verify/" + activation_key
-                send_mail('Activation link', activation_url , 'moein.zeraatkar@gmail.comf',
+                send_mail('Activation link', activation_url , DEFAULT_FROM_EMAIL,
                         [user.email], fail_silently=False)
                 registered = True
         else:

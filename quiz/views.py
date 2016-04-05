@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
 
-# Create your views here.
 from django.template.context import RequestContext
 from django.views.decorators.http import require_POST
 
-from quiz.forms import QuestionForm, CategoryForm
-from quiz.models import Question
+from quiz.forms import QuestionForm, CategoryForm, ChallengeForm
+from quiz.models import Question, Quiz, QuestionCategory
+from Authentication.models import *
+from .functions import make_challenge
 
 
 def home(request):
@@ -77,4 +79,33 @@ def add_category(request):
         return render_to_response('quiz/add_category.html',
                                   {'category_form': category_form,
                                    'error_message': errors},
+                                  context_instance=RequestContext(request))
+def challenge(request, quiz_id):
+    quiz = Quiz.objects.get(pk=quiz_id)
+    challenger = quiz.competitor1
+    challengee = quiz.competitor2
+    if request.user != challengee.user or request.user != challenger.user:
+        raise Http404()
+    return render_to_response('quiz/challenge.html',
+                              {'quiz':quiz},
+                              context_instance=RequestContext(request))
+
+def make_quiz(request):
+    if request.method == 'POST':
+        challenge_form = ChallengeForm(data=request.POST)
+        print challenge_form.errors
+        if challenge_form.is_valid():
+            cat = challenge_form.cleaned_data.get('category')
+            challengee = challenge_form.cleaned_data.get('challengee')
+            category = QuestionCategory.objects.get(name=cat)
+            challengee_user = UserProfile.objects.get(user__email=challengee)
+            challenger_user = UserProfile.objects.get(user=request.user)
+            quiz_id = make_challenge(challenger_user, challengee_user, category)
+            return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
+        else:
+            raise Http404()
+
+    else:
+        return render_to_response('quiz/make-challenge.html',
+                                  {'form':ChallengeForm()},
                                   context_instance=RequestContext(request))
