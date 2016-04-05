@@ -1,16 +1,17 @@
-{% load bootstrap3 %}
+{% extends "base.html" %}
 
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 
-{% bootstrap_messages %}
+{% block extra_head %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+{% endblock %}
 
-<html>
-    <head>
-        <title>ثبت نام</title>
-    </head>
-
-    <body>
+{% block body %}
+    <section id="portfolio">
         {% if registered %}
         <strong>an activation link sent to your profile!</strong>
         {% else %}
@@ -24,10 +25,7 @@
                         {% csrf_token %}
                         {% bootstrap_form user_form %}
                         {% bootstrap_form profile_form %}
-                        <!--{{ user_form.as_p }}-->
-                        <!--{{ profile_form.as_p }}-->
 
-                        <!--<input type="submit" name="submit" value="Register" />-->
                         {% buttons %}
                         <button type="submit" class="btn btn-primary">
                 ثبت نام
@@ -38,5 +36,5 @@
             </div>
         </div>
         {% endif %}
-    </body>
-</html>
+    </section>
+{% endblock %}
