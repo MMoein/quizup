@@ -36,6 +36,8 @@ class QuestionCategory(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return unicode(self.name)
 
 class Question(models.Model):
     text = models.TextField(verbose_name="Question")
@@ -44,7 +46,8 @@ class Question(models.Model):
     choice2 = models.CharField(max_length=255, verbose_name="Dummy answer1")
     choice3 = models.CharField(max_length=255, verbose_name="Dummy answer2")
     choice4 = models.CharField(max_length=255, verbose_name="Dummy answer3")
-
+    def __str__(self):
+        return self.text
 
 class Quiz(models.Model):
     category = models.ForeignKey(QuestionCategory, verbose_name="Category")

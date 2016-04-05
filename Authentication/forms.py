@@ -35,6 +35,6 @@ class UserProfileForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(widget=forms.PasswordInput())
-    captcha = CaptchaField()
+    username = forms.CharField(max_length=30, label='ایمیل')
+    password = forms.CharField(widget=forms.PasswordInput(), label='رمز‌عبور')
+    captcha = CaptchaField(label='')
