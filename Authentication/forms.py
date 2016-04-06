@@ -16,6 +16,14 @@ class UserForm(forms.ModelForm):
         self.fields['email'].label = u'ایمیل'
         self.fields['password'].label = u'رمز‌عبور'
 
+    def save(self, commit=True):
+        user = super(UserForm, self).save(commit=False)
+
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
+
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email', 'password')

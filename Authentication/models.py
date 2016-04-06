@@ -6,10 +6,10 @@ from django_countries.fields import CountryField
 
 
 class UserProfile(models.Model):
-    GENDER_CHOICES = [('M', 'MALE'), ('F', 'FEMALE')]
+    GENDER_CHOICES = [('MALE', 'MALE'), ('FEMALE', 'FEMALE')]
 
     user = models.OneToOneField(User)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
     nationality = CountryField()
     is_active = models.BooleanField()
     activation_key = models.CharField(max_length=40)
