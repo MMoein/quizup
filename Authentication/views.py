@@ -2,7 +2,8 @@
 
 import socket
 
-from django.contrib.auth import authenticate
+from django.conf.global_settings import DEFAULT_FROM_EMAIL
+from django.contrib.auth import authenticate, logout as l
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from .forms import *
@@ -45,9 +46,9 @@ def signup(request):
                 # Now we save the UserProfile model instance.
                 profile.save()
                 s = socket.gethostbyname(socket.gethostname())
-                activation_url = "http://" + str(s) + "/verify/" + activation_key
-                send_mail('Activation link', activation_url, 'moein.zeraatkar@gmail.comf',
-                          [user.email], fail_silently=False)
+                activation_url = "http://"+str(s)+"/verify/" + activation_key
+                send_mail('Activation link', activation_url , DEFAULT_FROM_EMAIL,
+                        [user.email], fail_silently=False)
                 registered = True
         else:
             errors = str(user_form.errors) + str(profile_form.errors)
@@ -169,3 +170,7 @@ def profile(request):
                                    'profile_form': user_profile_form,
                                    'error_message': errors},
                                   context_instance=RequestContext(request))
+
+def logout(request):
+    l(request)
+    return redirect(reverse('homepage'))
