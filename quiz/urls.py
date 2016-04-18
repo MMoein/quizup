@@ -6,4 +6,5 @@ urlpatterns = patterns('',
                        url(r'^search/$', 'quiz.views.search', name='search'),
                        url(r'^challenge/(?P<quiz_id>[0-9]+)', 'quiz.views.challenge', name='challenge'),
                        url(r'^make-quiz/$', 'quiz.views.make_quiz', name='make_quiz'),
+                        url(r'^scoreboard/$', 'quiz.views.scoreboard', name='scoreboard'),
                        )
