@@ -12,6 +12,16 @@
 {% block body %}
     <div class="container">
   <h2>نتیجه‌ی جستجو</h2>
+        <form action="/quiz/search/" method="post">
+            {% csrf_token %}
+            <input type="hidden" value="{{search}}" name="query"/>
+            <select name="cat_id" id="cat_sel" onchange='this.form.submit()'>
+                <option selected>انتخاب دسته</option>
+                {% for cat in cats %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
   <table class="table table-hover">
     <thead>
       <tr>

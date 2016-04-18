@@ -19,8 +19,13 @@ def home(request):
 @require_POST
 def search(request):
     search_query = request.POST['query']
-    questions = Question.objects.filter(text__contains=search_query)
-    return render_to_response('quiz/search.html', {'questions': questions}, context_instance=RequestContext(request))
+    categories = QuestionCategory.objects.all()
+    category = request.POST['cat_id'] if request.POST.has_key('cat_id') else None
+    if category:
+        questions = Question.objects.filter(text__contains=search_query, category__id=category)
+    else:
+        questions = Question.objects.filter(text__contains=search_query)
+    return render_to_response('quiz/search.html', {'questions': questions, 'cats':categories, 'search':search_query}, context_instance=RequestContext(request))
 
 
 def add_question(request):
