@@ -11,6 +11,7 @@ from quiz.forms import QuestionForm, CategoryForm, ChallengeForm
 from quiz.models import Question, Quiz, QuestionCategory
 from Authentication.models import *
 from .functions import make_challenge
+import operator
 
 
 def home(request):
@@ -26,6 +27,29 @@ def search(request):
     else:
         questions = Question.objects.filter(text__contains=search_query)
     return render_to_response('quiz/search.html', {'questions': questions, 'cats':categories, 'search':search_query}, context_instance=RequestContext(request))
+
+def scoreboard(request):
+    categories = QuestionCategory.objects.all()
+    category = request.POST['cat_id'] if request.POST.has_key('cat_id') else None
+    if category:
+        quizs = Quiz.objects.filter(category__id=category)
+        scores = {}
+        for q in quizs:
+            if q.competitor1 in scores:
+                scores[q.competitor1] = scores[q.competitor1]+(q.score1 or 0)
+            else:
+                scores[q.competitor1] = (q.score1 or 0)
+
+            if q.competitor2 in scores:
+                scores[q.competitor2] = scores[q.competitor2]+(q.score2 or 0)
+            else:
+                scores[q.competitor2] = (q.score2 or 0)
+        scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)[:5]
+    else:
+        scores = []
+    print scores
+
+    return render_to_response('quiz/scoreboard.html', {'cats':categories, 'scores':scores}, context_instance=RequestContext(request))
 
 
 def add_question(request):
