@@ -45,7 +45,7 @@ def signup(request):
                 profile.activation_key = activation_key
                 # Now we save the UserProfile model instance.
                 profile.save()
-                s = socket.gethostbyname(socket.gethostname())
+                s = "challenger.tk"
                 activation_url = "http://"+str(s)+"/verify/" + activation_key
                 send_mail('Activation link', activation_url , DEFAULT_FROM_EMAIL,
                         [user.email], fail_silently=False)
