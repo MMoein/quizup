@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 
 from django import forms
 
@@ -33,10 +34,25 @@ class CategoryForm(forms.ModelForm):
         model = QuestionCategory
         fields = ('name',)
 
+
 class ChallengeForm(forms.Form):
     category = forms.ModelChoiceField(queryset=QuestionCategory.objects.all())
-    challengee = forms.CharField()
+    challengee = forms.EmailField()
+
     def __init__(self, *args, **kwargs):
         super(ChallengeForm, self).__init__(*args, **kwargs)
         self.fields['category'].label = u'دسته ی سوال'
         self.fields['challengee'].label = u'حریف'
+
+
+class InlineQuestionForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        question = kwargs.pop('question')
+        super(InlineQuestionForm, self).__init__(*args, **kwargs)
+        self.fields['question'] = forms.ChoiceField()
+        self.fields['question'].widget = forms.RadioSelect()
+        self.fields['question'].label = question.text
+        choices = [(question.choice1, question.choice1), (question.choice2, question.choice2), (question.choice3, question.choice3), (question.choice4, question.choice4)]
+        random.shuffle(choices)
+        self.fields['question'].choices = choices

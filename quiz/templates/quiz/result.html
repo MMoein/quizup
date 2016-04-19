@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block extra_head %}
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+{% endblock %}
+{% block body %}
+
+<div class="container">
+  <h2>نتیجه</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>امتیاز</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{quiz.competitor1.user.email}}</td>
+        <td>
+            {% if done1 %}
+                {{ quiz.score1 }}
+            {% else %}
+                در حال انتظار
+            {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>{{quiz.competitor2.user.email}}</td>
+        <td>
+            {% if done2 %}
+                {{ quiz.score2 }}
+            {% else %}
+                در حال انتظار
+            {% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

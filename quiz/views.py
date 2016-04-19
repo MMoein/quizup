@@ -2,17 +2,18 @@
 
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect, render_to_response, get_object_or_404
 
 from django.template.context import RequestContext
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from quiz.forms import QuestionForm, CategoryForm, ChallengeForm
+from quiz.forms import QuestionForm, CategoryForm, ChallengeForm, InlineQuestionForm
 from quiz.models import Question, Quiz, QuestionCategory
 from Authentication.models import *
 from .functions import make_challenge
 import operator
-
+from datetime import datetime
 
 def home(request):
     return render_to_response('quiz/home.html', context_instance=RequestContext(request))
@@ -109,14 +110,62 @@ def add_category(request):
                                   {'category_form': category_form,
                                    'error_message': errors},
                                   context_instance=RequestContext(request))
+
+
 def challenge(request, quiz_id):
     quiz = Quiz.objects.get(pk=quiz_id)
     challenger = quiz.competitor1
     challengee = quiz.competitor2
-    if request.user != challengee.user or request.user != challenger.user:
+    if request.user != challengee.user and request.user != challenger.user:
         raise Http404()
+
+    if request.method == 'POST':
+        points = 0
+        if request.POST.get('question', None) == question.choice1:
+            if challenger.user == request.user:
+                time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
+                points = max(20 - time_diff, 0)
+            else:
+                time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
+                points = max(20 - time_diff, 0)
+
+        quiz.answered_count1 += 1
+        quiz.start_time1 = datetime.now(timezone.utc)
+        quiz.score1 += points
+        quiz.save()
+    if challenger.user == request.user:
+        if quiz.answered_count1 == 0:
+            quiz.start_time1 = datetime.now(timezone.utc)
+            quiz.save()
+
+        if quiz.answered_count1 >= len(quiz.questions):
+            return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
+
+
+        question_id = quiz.questions[quiz.answered_count1]
+        question = Question.objects.get(id=question_id)
+        f1 = InlineQuestionForm(question=question)
+    else:
+        if quiz.answered_count2 == 0:
+            quiz.start_time2 = datetime.now(timezone.utc)
+            quiz.save()
+
+        if quiz.answered_count2 >= len(quiz.questions):
+            return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
+
+        question_id = quiz.questions[quiz.answered_count2]
+        question = Question.objects.get(id=question_id)
+        f1 = InlineQuestionForm(question=question)
     return render_to_response('quiz/challenge.html',
-                              {'quiz':quiz},
+                              {'quiz': quiz,
+                               'form': f1},
+                              context_instance=RequestContext(request))
+
+
+def result(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render_to_response('quiz/result.html',
+                              {'quiz': quiz, 'done1': quiz.answered_count1 >= len(quiz.questions), 'done2': quiz.answered_count2 >= len(quiz.questions)},
                               context_instance=RequestContext(request))
 
 def make_quiz(request):

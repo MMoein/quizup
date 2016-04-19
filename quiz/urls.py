@@ -5,6 +5,7 @@ urlpatterns = patterns('',
                        url(r'^add/category/$', 'quiz.views.add_category', name='add_category'),
                        url(r'^search/$', 'quiz.views.search', name='search'),
                        url(r'^challenge/(?P<quiz_id>[0-9]+)', 'quiz.views.challenge', name='challenge'),
+                       url(r'^result/(?P<quiz_id>[0-9]+)', 'quiz.views.result', name='result'),
                        url(r'^make-quiz/$', 'quiz.views.make_quiz', name='make_quiz'),
-                        url(r'^scoreboard/$', 'quiz.views.scoreboard', name='scoreboard'),
+                       url(r'^scoreboard/$', 'quiz.views.scoreboard', name='scoreboard'),
                        )

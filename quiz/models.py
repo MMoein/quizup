@@ -58,11 +58,13 @@ class Quiz(models.Model):
 
     competitor1 = models.ForeignKey(UserProfile, related_name='first_competitor')
     start_time1 = models.DateTimeField()
-    score1 = models.IntegerField(blank=True, null=True)
+    score1 = models.IntegerField(default=0)
+    answered_count1 = models.IntegerField(default=0)
 
     competitor2 = models.ForeignKey(UserProfile, related_name='second_competitor', null=True, blank=True)
     start_time2 = models.DateTimeField(blank=True, null=True)
-    score2 = models.IntegerField(blank=True, null=True)
+    score2 = models.IntegerField(default=0)
+    answered_count2 = models.IntegerField(default=0)
     questions = ListField(blank=True, null=True)
 
     def save(self, *args, **kwargs):

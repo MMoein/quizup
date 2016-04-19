@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block extra_head %}
 
-</body>
-</html>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+{% endblock %}
+{% block body %}
+
+    <div class="row"><div class="col-md-6 col-md-offset-3">
+     <form id="challenge_form" method="post" action="" class="form"
+                            enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+
+                        {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                            بعدی
+                        </button>
+                        {% endbuttons %}
+     </form>
+    </div></div>
+{% endblock %}
