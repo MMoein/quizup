@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from django.conf.global_settings import DEFAULT_FROM_EMAIL
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response, get_object_or_404
@@ -151,6 +152,9 @@ def challenge(request, quiz_id):
             quiz.save()
 
         if quiz.answered_count2 >= len(quiz.questions):
+            result_link = "http://"+"challenger.tk"+"/result/" + str(quiz_id)
+            send_mail('Challenge result', result_link , DEFAULT_FROM_EMAIL,
+                        [challenger.user.email, challengee.user.email], fail_silently=False)
             return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
 
         question_id = quiz.questions[quiz.answered_count2]
