@@ -122,6 +122,7 @@ def challenge(request, quiz_id):
 
     if request.method == 'POST':
         points = 0
+        question = Question.objects.get(pk = quiz.questions[quiz.answered_count1])
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
                 time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
