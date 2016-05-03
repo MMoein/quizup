@@ -188,8 +188,14 @@ def make_quiz(request):
             cat = challenge_form.cleaned_data.get('category')
             challengee = challenge_form.cleaned_data.get('challengee')
             category = QuestionCategory.objects.get(name=cat)
-            challengee_user = UserProfile.objects.get(user__email=challengee)
-            challenger_user = UserProfile.objects.get(user=request.user)
+            challengee_user = UserProfile.objects.filter(user__email=challengee).first()
+            challenger_user = UserProfile.objects.filter(user=request.user).first()
+            if challenger_user is None or challengee_user is None or challengee_user == challenger_user:
+                return render_to_response('quiz/make-challenge.html',
+                                          {'form': ChallengeForm(),
+                                           'messages': u'لطفا یک کاربر دیگر انتخاب کنید'},
+                                          context_instance=RequestContext(request))
+
             quiz_id = make_challenge(challenger_user, challengee_user, category)
             return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
         else:
@@ -197,5 +203,5 @@ def make_quiz(request):
 
     else:
         return render_to_response('quiz/make-challenge.html',
-                                  {'form':ChallengeForm()},
+                                  {'form': ChallengeForm()},
                                   context_instance=RequestContext(request))
