@@ -122,19 +122,27 @@ def challenge(request, quiz_id):
 
     if request.method == 'POST':
         points = 0
-        question = Question.objects.get(pk = quiz.questions[quiz.answered_count1])
+        question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+        # calculate points
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
                 time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
                 points = max(20 - time_diff, 0)
             else:
-                time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
+                time_diff = (quiz.start_time2 - datetime.now(timezone.utc)).seconds
                 points = max(20 - time_diff, 0)
+        # update the quiz
+        if challenger.user == request.user:
+            quiz.answered_count1 += 1
+            quiz.start_time1 = datetime.now(timezone.utc)
+            quiz.score1 += points
+            quiz.save()
+        else:
+            quiz.answered_count2 += 1
+            quiz.start_time2 = datetime.now(timezone.utc)
+            quiz.score2 += points
+            quiz.save()
 
-        quiz.answered_count1 += 1
-        quiz.start_time1 = datetime.now(timezone.utc)
-        quiz.score1 += points
-        quiz.save()
     if challenger.user == request.user:
         if quiz.answered_count1 == 0:
             quiz.start_time1 = datetime.now(timezone.utc)
@@ -153,9 +161,9 @@ def challenge(request, quiz_id):
             quiz.save()
 
         if quiz.answered_count2 >= len(quiz.questions):
-            result_link = "http://"+"challenger.tk"+"/result/" + str(quiz_id)
-            send_mail('Challenge result', result_link , DEFAULT_FROM_EMAIL,
-                        [challenger.user.email, challengee.user.email], fail_silently=False)
+            result_link = "http://" + "challenger.tk" + "/result/" + str(quiz_id)
+            send_mail('Challenge result', result_link, DEFAULT_FROM_EMAIL,
+                      [challenger.user.email, challengee.user.email], fail_silently=False)
             return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
 
         question_id = quiz.questions[quiz.answered_count2]
@@ -172,6 +180,7 @@ def result(request, quiz_id):
     return render_to_response('quiz/result.html',
                               {'quiz': quiz, 'done1': quiz.answered_count1 >= len(quiz.questions), 'done2': quiz.answered_count2 >= len(quiz.questions)},
                               context_instance=RequestContext(request))
+
 
 def make_quiz(request):
     if request.method == 'POST':
