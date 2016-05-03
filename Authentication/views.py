@@ -71,7 +71,9 @@ def verify(request, token):
     userprofile = userprofilelist[0]
     userprofile.is_active = True
     userprofile.save()
-    auth_login(request, userprofile)
+    user = userprofile.user
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    auth_login(request, user)
     return HttpResponse("user " + str(userprofile) + " activated")
 
 
