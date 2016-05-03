@@ -70,7 +70,7 @@ class Quiz(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             q = Question.objects.filter(category=self.category).values_list('pk', flat=True)
-            qlist = random.sample(range(0, len(q)), 2)
+            qlist = random.sample(range(0, len(q)), 7)
             self.questions = []
             for pk in qlist:
                 self.questions.append(q[pk])
