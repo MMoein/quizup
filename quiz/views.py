@@ -126,10 +126,10 @@ def challenge(request, quiz_id):
         # calculate points
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
-                time_diff = (quiz.start_time1 - datetime.now(timezone.utc)).seconds
+                time_diff = (datetime.now(timezone.utc) - quiz.start_time1).seconds
                 points = max(20 - time_diff, 0)
             else:
-                time_diff = (quiz.start_time2 - datetime.now(timezone.utc)).seconds
+                time_diff = (datetime.now(timezone.utc) - quiz.start_time2).seconds
                 points = max(20 - time_diff, 0)
         # update the quiz
         if challenger.user == request.user:
@@ -150,7 +150,6 @@ def challenge(request, quiz_id):
 
         if quiz.answered_count1 >= len(quiz.questions):
             return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
-
 
         question_id = quiz.questions[quiz.answered_count1]
         question = Question.objects.get(id=question_id)
@@ -185,7 +184,6 @@ def result(request, quiz_id):
 def make_quiz(request):
     if request.method == 'POST':
         challenge_form = ChallengeForm(data=request.POST)
-        print challenge_form.errors
         if challenge_form.is_valid():
             cat = challenge_form.cleaned_data.get('category')
             challengee = challenge_form.cleaned_data.get('challengee')
