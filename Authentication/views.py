@@ -93,9 +93,15 @@ def login(request):
                     auth_login(request, user)
                     return redirect('/')
                 else:
-                    return HttpResponse("username is not active ! check your email plz!")
+                    return render_to_response('Authentication/login.html',
+                                              {'form': loginform,
+                                               'error_message': u"ایمیل خود را تایید نکرده اید"},
+                                              context_instance=RequestContext(request))
             else:
-                return HttpResponse("username is not valid")
+                return render_to_response('Authentication/login.html',
+                                   {'form': loginform,
+                                    'error_message': u"ایمیل نامعتبر است"},
+                                   context_instance=RequestContext(request))
         else:
             errors = loginform.errors
     return render_to_response('Authentication/login.html',
@@ -172,6 +178,7 @@ def profile(request):
                                    'profile_form': user_profile_form,
                                    'error_message': errors},
                                   context_instance=RequestContext(request))
+
 
 def logout(request):
     l(request)

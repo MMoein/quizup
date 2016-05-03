@@ -3,17 +3,25 @@
 {% block extra_head %}
 
 {% load bootstrap3 %}
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    {% bootstrap_css %}
-    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
-    {% bootstrap_javascript %}
-    {% bootstrap_messages %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+{% bootstrap_css %}
+<link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+{% bootstrap_javascript %}
+
+<title>ورود</title>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
+
+{% if messages %}
+<div class="alert alert-success">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <p>{{ messages }}</p>
+</div>
+{% endif %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
             {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
             <form action='/login/' method="post" class="form">
                 {% csrf_token %}
@@ -25,7 +33,7 @@
                 {% endbuttons %}
 
             </form>
-            </div>
         </div>
     </div>
+</div>
 {% endblock %}
