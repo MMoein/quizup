@@ -37,15 +37,15 @@ def scoreboard(request):
         quizs = Quiz.objects.filter(category__id=category)
         scores = {}
         for q in quizs:
-            if q.competitor1 in scores:
-                scores[q.competitor1] = scores[q.competitor1]+(q.score1 or 0)
+            if q.competitor1.user.first_name in scores:
+                scores[q.competitor1.user.first_name] = scores[q.competitor1.user.first_name]+(q.score1 or 0)
             else:
-                scores[q.competitor1] = (q.score1 or 0)
+                scores[q.competitor1.user.first_name] = (q.score1 or 0)
 
-            if q.competitor2 in scores:
-                scores[q.competitor2] = scores[q.competitor2]+(q.score2 or 0)
+            if q.competitor2.user.first_name in scores:
+                scores[q.competitor2.user.first_name] = scores[q.competitor2.user.first_name]+(q.score2 or 0)
             else:
-                scores[q.competitor2] = (q.score2 or 0)
+                scores[q.competitor2.user.first_name] = (q.score2 or 0)
         scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)[:5]
     else:
         scores = []
