@@ -10,31 +10,77 @@
     {% bootstrap_messages %}
 {% endblock %}
 {% block body %}
-<p align="center">امتیاز:{{score}}</p>
-    <div class="row"><div class="col-md-6 col-md-offset-3">
-     <form id="challenge_form" method="post" action="" class="form"
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2 panel panel-success" >
+            <div class="row panel-heading" style="text-align: center;">خود</div>
+            <div class="row panel-body" id="self" style="text-align: center;"></div>
+        </div>
+        <div class="col-md-6">
+     <form id="challenge_form" method="post" action="" class="form well well-sm"
                             enctype="multipart/form-data">
                         {% csrf_token %}
                         {% bootstrap_form form %}
 
                         <input type="hidden" id="timer" name="timer"/>
-                        <p align="center" id="demo"></p>
+                        <p align="center" id="demo">0</p>
                         {% buttons %}
-                        <button type="submit" class="btn btn-primary">
+                        <button id="next" type="submit" class="btn btn-primary">
                             بعدی
                         </button>
                         {% endbuttons %}
      </form>
-    </div></div>
 
+    </div>
+        <div class="col-md-1  panel panel-danger" >
+            <div class="row panel-heading" style="text-align: center;">
+                حریف
+            </div>
+            <div class="row panel-body" id="opponent" style="text-align: center;">
+
+            </div>
+        </div>
+    </div>
 
 <script>
+$.ajax(
+{
+    url: "/quiz/{{quiz.id}}/stats/",
+    type: 'GET',
+    dataType: 'json',
+    accept: 'application/json',
+    success: function(data)
+    {
+        console.log(data);
+        $("#self").text(data["self_score"])
+        $("#opponent").text(data["opponent_score"])
+
+    }
+});
+
 var myVar = setInterval(myTimer ,1000);
 var d = 0;
 function myTimer() {
     d = d+1;
+    if(d>20){
+        $("#next").click()
+    }
     document.getElementById("demo").innerHTML = d
     document.getElementById("timer").value = d
+
+$.ajax(
+{
+    url: "/quiz/{{quiz.id}}/stats/",
+    type: 'GET',
+    dataType: 'json',
+    accept: 'application/json',
+    success: function(data)
+    {
+        console.log(data);
+        $("#self").text(data["self_score"])
+        $("#opponent").text(data["opponent_score"])
+
+    }
+});
 }
 </script>
 {% endblock %}

@@ -110,9 +110,7 @@ def login(request):
 
 
 def profile(request):
-    print "profile"
     if not request.user.is_authenticated():
-        print "redirected"
         return redirect(reverse('login'))
 
     errors = []
@@ -127,33 +125,6 @@ def profile(request):
         if user_form.is_valid() and profile_form.is_valid():
 
             user_form.save()
-            # user = User(**user_form.cleaned_data)
-            # user.first_name = user.first_name
-            # user.last_name = user.last_name
-            # user.username = user.email
-            # user.set_password(user.password)
-
-            # profile = profile_form.save(commit=False)
-            # profile.user = user
-
-
-            # if User.objects.filter(email=user.email):
-            #     errors = "already have this"
-            # else:
-            #     user.save()
-            #     profile = profile_form.save(commit=False)
-            #     profile.user = user
-            #     profile.is_active = False
-            #     salt = sha.new(str(random.random())).hexdigest()[:5]
-            #     activation_key = sha.new(salt + user.username).hexdigest()
-            #     profile.activation_key = activation_key
-            #     # Now we save the UserProfile model instance.
-            #     profile.save()
-            #     s = socket.gethostbyname(socket.gethostname())
-            #     activation_url = "http://" + str(s) + "/verify/" + activation_key
-            #     send_mail('Activation link', activation_url, 'moein.zeraatkar@gmail.comf',
-            #               [user.email], fail_silently=False)
-            #     registered = True
             return render_to_response('Authentication/profile.html',
                                       {'user_form': user_form,
                                        'profile_form': profile_form,

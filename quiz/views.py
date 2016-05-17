@@ -15,12 +15,16 @@ from Authentication.models import *
 from .functions import make_challenge
 import operator
 from datetime import datetime
+import json
 
 def home(request):
     return render_to_response('quiz/home.html', context_instance=RequestContext(request))
 
 @require_POST
 def search(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
     search_query = request.POST['query']
     categories = QuestionCategory.objects.all()
     category = request.POST['cat_id'] if request.POST.has_key('cat_id') else None
@@ -31,6 +35,9 @@ def search(request):
     return render_to_response('quiz/search.html', {'questions': questions, 'cats':categories, 'search':search_query}, context_instance=RequestContext(request))
 
 def scoreboard(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
     categories = QuestionCategory.objects.all()
     category = request.POST['cat_id'] if request.POST.has_key('cat_id') else None
     if category:
@@ -114,6 +121,9 @@ def add_category(request):
 
 
 def challenge(request, quiz_id):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
     quiz = Quiz.objects.get(pk=quiz_id)
     challenger = quiz.competitor1
     challengee = quiz.competitor2
@@ -178,6 +188,9 @@ def challenge(request, quiz_id):
 
 
 def result(request, quiz_id):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
     quiz = get_object_or_404(Quiz, id=quiz_id)
     return render_to_response('quiz/result.html',
                               {'quiz': quiz, 'done1': quiz.answered_count1 >= len(quiz.questions), 'done2': quiz.answered_count2 >= len(quiz.questions)},
@@ -185,6 +198,9 @@ def result(request, quiz_id):
 
 
 def make_quiz(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
     if request.method == 'POST':
         challenge_form = ChallengeForm(data=request.POST)
         if challenge_form.is_valid():
@@ -211,6 +227,8 @@ def make_quiz(request):
 
 
 def online_challenge(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
 
     if request.method == 'POST':
         challenge_form = OnlineChallengeForm(data=request.POST)
@@ -247,3 +265,16 @@ def challenge_search(request):
     if quiz is not None:
         return HttpResponse('/quiz/challenge/' + str(quiz.id))
     return HttpResponse('-1')
+
+
+def stats(request, quiz_id):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
+    quiz = Quiz.objects.get(id=quiz_id)
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    if user_profile is None or (not quiz.competitor1 == user_profile and not quiz.competitor1 == user_profile):
+        raise Http404()
+    score = quiz.score1 if quiz.competitor1 == user_profile else quiz.score2
+    opponent_score = quiz.score2 if quiz.competitor1 == user_profile else quiz.score1
+    return HttpResponse(json.dumps({'self_score': score, 'opponent_score': opponent_score}))
