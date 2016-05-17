@@ -45,6 +45,14 @@ class ChallengeForm(forms.Form):
         self.fields['challengee'].label = u'حریف'
 
 
+class OnlineChallengeForm(forms.Form):
+    category = forms.ModelChoiceField(queryset=QuestionCategory.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super(OnlineChallengeForm, self).__init__(*args, **kwargs)
+        self.fields['category'].label = u'دسته ی سوال'
+
+
 class InlineQuestionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

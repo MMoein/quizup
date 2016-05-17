@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 import ast
 import random
@@ -79,3 +80,8 @@ class Quiz(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+
+class ChallengeRequest(models.Model):
+    user = models.ForeignKey(User, verbose_name="Category")
+    category = models.ForeignKey(QuestionCategory, verbose_name="Category")

@@ -9,8 +9,8 @@ from django.template.context import RequestContext
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from quiz.forms import QuestionForm, CategoryForm, ChallengeForm, InlineQuestionForm
-from quiz.models import Question, Quiz, QuestionCategory
+from quiz.forms import QuestionForm, CategoryForm, ChallengeForm, InlineQuestionForm, OnlineChallengeForm
+from quiz.models import Question, Quiz, QuestionCategory, ChallengeRequest
 from Authentication.models import *
 from .functions import make_challenge
 import operator
@@ -205,3 +205,41 @@ def make_quiz(request):
         return render_to_response('quiz/make-challenge.html',
                                   {'form': ChallengeForm()},
                                   context_instance=RequestContext(request))
+
+
+def online_challenge(request):
+
+    if request.method == 'POST':
+        challenge_form = OnlineChallengeForm(data=request.POST)
+        if challenge_form.is_valid():
+            category_id = challenge_form.cleaned_data.get('category')
+            category = QuestionCategory.objects.get(name=category_id)
+            challege_req = ChallengeRequest.objects.filter(category=category).first()
+            if challege_req is not None:
+                opponent = challege_req.user
+                challengee_user = UserProfile.objects.filter(user=opponent).first()
+                challenger_user = UserProfile.objects.filter(user=request.user).first()
+                challege_req.delete()
+                quiz_id = make_challenge(challenger_user, challengee_user, category, _send_mail=False)
+                return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
+
+            ChallengeRequest.objects.create(user=request.user, category=category)
+            return HttpResponseRedirect(reverse('challenge_search'))
+
+        else:
+            return render_to_response('quiz/online-challenge.html',
+                                      {'category_form': challenge_form,
+                                       'error_message': challenge_form.errors},
+                                      context_instance=RequestContext(request))
+    else:
+        return render_to_response('quiz/online-challenge.html',
+                                  {'form': OnlineChallengeForm()},
+                                  context_instance=RequestContext(request))
+
+
+def challenge_search(request):
+    challenger_user = UserProfile.objects.filter(user=request.user).first()
+    quiz = Quiz.objects.filter(competitor2=challenger_user, start_time2__isnull=True).first()
+    if quiz is not None:
+        return HttpResponse('/quiz/challenge/' + str(quiz.id))
+    return HttpResponse('-1')
