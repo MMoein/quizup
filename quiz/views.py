@@ -217,7 +217,7 @@ def online_challenge(request):
         if challenge_form.is_valid():
             category_id = challenge_form.cleaned_data.get('category')
             category = QuestionCategory.objects.get(name=category_id)
-            challege_req = ChallengeRequest.objects.filter(category=category).first()
+            challege_req = ChallengeRequest.objects.exclude(user=request.user).filter(category=category).first()
             if challege_req is not None:
                 opponent = challege_req.user
                 challengee_user = UserProfile.objects.filter(user=opponent).first()
@@ -226,7 +226,7 @@ def online_challenge(request):
                 quiz_id = make_challenge(challenger_user, challengee_user, category, _send_mail=False)
                 return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
 
-            ChallengeRequest.objects.create(user=request.user, category=category)
+            ChallengeRequest.objects.get_or_create(user=request.user, category=category)
             return HttpResponseRedirect(reverse('challenge_search'))
 
         else:
