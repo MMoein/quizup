@@ -37,15 +37,15 @@ def scoreboard(request):
         quizs = Quiz.objects.filter(category__id=category)
         scores = {}
         for q in quizs:
-            if q.competitor1 in scores:
-                scores[q.competitor1] = scores[q.competitor1]+(q.score1 or 0)
+            if q.competitor1.user.first_name in scores:
+                scores[q.competitor1.user.first_name] = scores[q.competitor1.user.first_name]+(q.score1 or 0)
             else:
-                scores[q.competitor1] = (q.score1 or 0)
+                scores[q.competitor1.user.first_name] = (q.score1 or 0)
 
-            if q.competitor2 in scores:
-                scores[q.competitor2] = scores[q.competitor2]+(q.score2 or 0)
+            if q.competitor2.user.first_name in scores:
+                scores[q.competitor2.user.first_name] = scores[q.competitor2.user.first_name]+(q.score2 or 0)
             else:
-                scores[q.competitor2] = (q.score2 or 0)
+                scores[q.competitor2.user.first_name] = (q.score2 or 0)
         scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)[:5]
     else:
         scores = []
@@ -119,28 +119,30 @@ def challenge(request, quiz_id):
     challengee = quiz.competitor2
     if request.user != challengee.user and request.user != challenger.user:
         raise Http404()
-
+    now_score = 0
     if request.method == 'POST':
         points = 0
         question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
         # calculate points
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
-                time_diff = (datetime.now(timezone.utc) - quiz.start_time1).seconds
+                time_diff = (int)(request.POST.get('timer',None))
                 points = max(20 - time_diff, 0)
             else:
-                time_diff = (datetime.now(timezone.utc) - quiz.start_time2).seconds
+                time_diff = (int)(request.POST.get('timer',None))
                 points = max(20 - time_diff, 0)
         # update the quiz
         if challenger.user == request.user:
             quiz.answered_count1 += 1
             quiz.start_time1 = datetime.now(timezone.utc)
             quiz.score1 += points
+            now_score = quiz.score1
             quiz.save()
         else:
             quiz.answered_count2 += 1
             quiz.start_time2 = datetime.now(timezone.utc)
             quiz.score2 += points
+            now_score = quiz.score2
             quiz.save()
 
     if challenger.user == request.user:
@@ -170,7 +172,8 @@ def challenge(request, quiz_id):
         f1 = InlineQuestionForm(question=question)
     return render_to_response('quiz/challenge.html',
                               {'quiz': quiz,
-                               'form': f1},
+                               'form': f1,
+                               'score':now_score},
                               context_instance=RequestContext(request))
 
 
