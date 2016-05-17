@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+
+{% block extra_head %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
+{% endblock %}
+
+{% block body %}
+
+<script>
+var myVar = setInterval(waitForOpponent ,1000);
+
+function waitForOpponent() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+        if (xhttp.responseText=="-1"){
+           ;
+        }else{
+            window.location.href=xhttp.responseText;
+        }
+    }
+  };
+  xhttp.open("GET", "/quiz/challenge-search", true);
+  xhttp.send();
+}
+
+
+</script>
+{% endblock %}

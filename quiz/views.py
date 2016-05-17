@@ -227,6 +227,7 @@ def online_challenge(request):
                 return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
 
             ChallengeRequest.objects.get_or_create(user=request.user, category=category)
+            return render_to_response('quiz/wait.html',{},context_instance=RequestContext(request))
             return HttpResponseRedirect(reverse('challenge_search'))
 
         else:
