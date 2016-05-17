@@ -74,7 +74,8 @@ def verify(request, token):
     user = userprofile.user
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     auth_login(request, user)
-    return HttpResponse("user " + str(userprofile) + " activated")
+    return HttpResponseRedirect('/')
+
 
 
 def login(request):
