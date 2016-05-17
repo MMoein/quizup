@@ -127,12 +127,18 @@ def challenge(request, quiz_id):
     quiz = Quiz.objects.get(pk=quiz_id)
     challenger = quiz.competitor1
     challengee = quiz.competitor2
+    user_profile = UserProfile.objects.filter(user=request.user).first()
     if request.user != challengee.user and request.user != challenger.user:
         raise Http404()
     now_score = 0
     if request.method == 'POST':
         points = 0
-        question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+        if quiz.competitor1 == user_profile:
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+        elif quiz.competitor2 == user_profile:
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count2])
+        else:
+            raise Http404()
         # calculate points
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
