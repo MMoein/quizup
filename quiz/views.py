@@ -273,7 +273,7 @@ def stats(request, quiz_id):
 
     quiz = Quiz.objects.get(id=quiz_id)
     user_profile = UserProfile.objects.filter(user=request.user).first()
-    if user_profile is None or (not quiz.competitor1 == user_profile and not quiz.competitor1 == user_profile):
+    if user_profile is None or (not quiz.competitor1 == user_profile and not quiz.competitor2 == user_profile):
         raise Http404()
     score = quiz.score1 if quiz.competitor1 == user_profile else quiz.score2
     opponent_score = quiz.score2 if quiz.competitor1 == user_profile else quiz.score1
