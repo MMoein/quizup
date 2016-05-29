@@ -146,9 +146,13 @@ def challenge(request, quiz_id):
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
                 time_diff = (int)(request.POST.get('timer',None))
+                challenger.time_in_quiz += time_diff
+                challenger.save()
                 points = max(20 - time_diff, 0)
             else:
                 time_diff = (int)(request.POST.get('timer',None))
+                challengee.time_in_quiz += time_diff
+                challengee.save()
                 points = max(20 - time_diff, 0)
         # update the quiz
         if challenger.user == request.user:

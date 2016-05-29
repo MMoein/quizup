@@ -18,7 +18,7 @@ from django.core.mail import send_mail
 from django.contrib.auth import login as auth_login
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-
+from quiz.functions import achievements
 
 def signup(request):
     registered = False
@@ -113,7 +113,7 @@ def login(request):
 def profile(request):
     if not request.user.is_authenticated():
         return redirect(reverse('login'))
-
+    achivs = achievements(request.user)
     errors = []
     if request.method == 'POST':
 
@@ -130,7 +130,8 @@ def profile(request):
                                       {'user_form': user_form,
                                        'profile_form': profile_form,
                                        'messages': u'تغییرات اعمال شد',
-                                       'error_message': errors},
+                                       'error_message': errors,
+                                       'achivements':achivs},
                                       context_instance=RequestContext(request))
         else:
             errors = str(user_form.errors) + str(profile_form.errors)
@@ -138,7 +139,8 @@ def profile(request):
             return render_to_response('Authentication/profile.html',
                                       {'user_form': user_form,
                                        'profile_form': profile_form,
-                                       'error_message': errors},
+                                       'error_message': errors,
+                                       'achivements':achivs},
                                       context_instance=RequestContext(request))
 
     elif request.method == 'GET':
@@ -148,7 +150,8 @@ def profile(request):
         return render_to_response('Authentication/profile.html',
                                   {'user_form': user_form,
                                    'profile_form': user_profile_form,
-                                   'error_message': errors},
+                                   'error_message': errors,
+                                   'achivements':achivs},
                                   context_instance=RequestContext(request))
 
 

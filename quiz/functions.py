@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 
 from .models import *
 
+from django.db.models import Q
 
 def make_challenge(challenger, challengee, category, _send_mail=True):
     quiz = Quiz(category=category, competitor1=challenger, start_time1=datetime.datetime.now(), competitor2=challengee)
@@ -17,3 +18,11 @@ def make_challenge(challenger, challengee, category, _send_mail=True):
         send_mail('You have been challenged', quiz_url, DEFAULT_FROM_EMAIL,
                   [challengee.user.email], fail_silently=False)
     return quiz.pk
+
+def achievements(user):
+    userprofile = UserProfile.objects.get(user=user)
+    quizs = Quiz.objects.filter(Q(competitor1=userprofile) | Q(competitor2=userprofile))
+    achiv1 = len(quizs)>=10
+    achiv2 = len(set(quizs.values_list('category',flat=True)))>5
+    achiv3 = userprofile.time_in_quiz >= 10*60
+    return [achiv1,achiv2,achiv3]
