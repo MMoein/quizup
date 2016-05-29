@@ -2,8 +2,8 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% block extra_head %}
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
     {% bootstrap_css %}
     <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
     {% bootstrap_javascript %}
@@ -23,11 +23,7 @@
 
                         <input type="hidden" id="timer" name="timer"/>
                         <p align="center" id="demo">0</p>
-                        {% buttons %}
-                        <button id="next" type="submit" class="btn btn-primary">
-                            بعدی
-                        </button>
-                        {% endbuttons %}
+
      </form>
 
     </div>
@@ -42,6 +38,30 @@
     </div>
 
 <script>
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+var t = 0;
+var l = [];
+$("#challenge_form").find('input').not("input[name='csrfmiddlewaretoken']").map(function () {
+    l.push(this.value);
+})
+
+$("#id_question_0").hide();
+$("#id_question_1").hide();
+$("#id_question_2").hide();
+$("#id_question_3").hide();
+$('input[type=radio]').on('change', function() {
+    $(this).parent().parent().addClass("alert alert-warning");
+    t = 1;
+    $(this).closest("form").ajaxSubmit({url: '/quiz/{{quiz.id}}/select/', type: 'post'})
+//    $(this).closest("form").submit();
+});
+
 $.ajax(
 {
     url: "/quiz/{{quiz.id}}/stats/",
@@ -60,9 +80,12 @@ $.ajax(
 var myVar = setInterval(myTimer ,1000);
 var d = 0;
 function myTimer() {
+
+    if (t == 0){
     d = d+1;
-    if(d>20){
-        $("#next").click()
+        if(d>19){
+            $("#challenge_form").submit();
+        }
     }
     document.getElementById("demo").innerHTML = d
     document.getElementById("timer").value = d
@@ -75,9 +98,13 @@ $.ajax(
     accept: 'application/json',
     success: function(data)
     {
-        console.log(data);
-        $("#self").text(data["self_score"])
-        $("#opponent").text(data["opponent_score"])
+        $("#self").text(data["self_score"]);
+        $("#opponent").text(data["opponent_score"]);
+        var temp = data["answered"];
+        if (t==1){
+            if (temp == true | data["mycount"] < data["opponent_count"])
+                $("#challenge_form").submit();
+        }
 
     }
 });
