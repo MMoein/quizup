@@ -138,19 +138,31 @@ def challenge(request, quiz_id):
         points = 0
         if quiz.competitor1 == user_profile:
             question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+            quiz.answerd1 = False
+            quiz.valid1 = False
+            quiz.save()
         elif quiz.competitor2 == user_profile:
             question = Question.objects.get(pk=quiz.questions[quiz.answered_count2])
+            quiz.answerd2 = False
+            quiz.valid2 = False
+            quiz.save()
         else:
             raise Http404()
         # calculate points
         if request.POST.get('question', None) == question.choice1:
             if challenger.user == request.user:
-                time_diff = (int)(request.POST.get('timer',None))
+                time = request.POST.get('timer', '0')
+                if time == "":
+                    time = '0'
+                time_diff = int(time)
                 challenger.time_in_quiz += time_diff
                 challenger.save()
                 points = max(20 - time_diff, 0)
             else:
-                time_diff = (int)(request.POST.get('timer',None))
+                time = request.POST.get('timer', '0')
+                if time == "":
+                    time = '0'
+                time_diff = int(time)
                 challengee.time_in_quiz += time_diff
                 challengee.save()
                 points = max(20 - time_diff, 0)
@@ -196,8 +208,41 @@ def challenge(request, quiz_id):
     return render_to_response('quiz/challenge.html',
                               {'quiz': quiz,
                                'form': f1,
-                               'score':now_score},
+                               'score': now_score},
                               context_instance=RequestContext(request))
+
+
+def select(request, quiz_id):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
+    quiz = Quiz.objects.get(pk=quiz_id)
+    challenger = quiz.competitor1
+    challengee = quiz.competitor2
+
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    if request.user != challengee.user and request.user != challenger.user:
+        raise Http404()
+    if request.method == 'POST':
+        if quiz.competitor1 == user_profile:
+            quiz.answerd1 = True
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+            if request.POST.get('question', None) == question.choice1:
+                quiz.valid1 = True
+            else:
+                quiz.valid1 = False
+
+        elif quiz.competitor2 == user_profile:
+            quiz.answerd2 = True
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count2])
+            if request.POST.get('question', None) == question.choice1:
+                quiz.valid2 = True
+            else:
+                quiz.valid2 = False
+        else:
+            raise Http404()
+    quiz.save()
+    return HttpResponse("")
 
 
 def result(request, quiz_id):
@@ -258,8 +303,7 @@ def online_challenge(request):
                 return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
 
             ChallengeRequest.objects.get_or_create(user=request.user, category=category)
-            return render_to_response('quiz/wait.html',{},context_instance=RequestContext(request))
-            return HttpResponseRedirect(reverse('challenge_search'))
+            return render_to_response('quiz/wait.html', {}, context_instance=RequestContext(request))
 
         else:
             return render_to_response('quiz/online-challenge.html',
@@ -289,5 +333,11 @@ def stats(request, quiz_id):
     if user_profile is None or (not quiz.competitor1 == user_profile and not quiz.competitor2 == user_profile):
         raise Http404()
     score = quiz.score1 if quiz.competitor1 == user_profile else quiz.score2
+    mycount = quiz.answered_count1 if quiz.competitor1 == user_profile else quiz.answered_count2
     opponent_score = quiz.score2 if quiz.competitor1 == user_profile else quiz.score1
-    return HttpResponse(json.dumps({'self_score': score, 'opponent_score': opponent_score}))
+    opponent_count = quiz.answered_count2 if quiz.competitor1 == user_profile else quiz.answered_count1
+    answered = quiz.answerd2 if quiz.competitor1 == user_profile else quiz.answerd1
+    valid = quiz.valid2 if quiz.competitor1 == user_profile else quiz.valid1
+    return HttpResponse(
+        json.dumps({'self_score': score, 'opponent_score': opponent_score, 'valid': valid, 'answered': answered,
+        'mycount': mycount, 'opponent_count': opponent_count}))

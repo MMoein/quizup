@@ -67,6 +67,10 @@ class Quiz(models.Model):
     score2 = models.IntegerField(default=0)
     answered_count2 = models.IntegerField(default=0)
     questions = ListField(blank=True, null=True)
+    valid1 = models.BooleanField(default=False)
+    valid2 = models.BooleanField(default=False)
+    answerd1 = models.BooleanField(default=False)
+    answerd2 = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:
