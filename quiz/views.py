@@ -16,7 +16,8 @@ from .functions import make_challenge
 import operator
 from datetime import datetime
 import json
-
+from django_countries.fields import CountryField
+from django_countries.data import COUNTRIES
 def home(request):
     return render_to_response('quiz/home.html', context_instance=RequestContext(request))
 
@@ -39,26 +40,28 @@ def scoreboard(request):
         return HttpResponseRedirect(reverse('login'))
 
     categories = QuestionCategory.objects.all()
+    countries = COUNTRIES.items()
+    country = request.POST['country'] if request.POST.has_key('country') else None
     category = request.POST['cat_id'] if request.POST.has_key('cat_id') else None
+    selected_country = country.split('\'')[1] if country else None
+    quizs = Quiz.objects.all()
     if category:
-        quizs = Quiz.objects.filter(category__id=category)
-        scores = {}
-        for q in quizs:
-            if q.competitor1.user.first_name in scores:
-                scores[q.competitor1.user.first_name] = scores[q.competitor1.user.first_name]+(q.score1 or 0)
-            else:
+        quizs = quizs.filter(category__id=category)
+    scores = {}
+    for q in quizs:
+        if q.competitor1.user.first_name in scores:
+            scores[q.competitor1.user.first_name] = scores[q.competitor1.user.first_name]+(q.score1 or 0)
+        else:
+            if q.competitor1.nationality.code == selected_country or not selected_country:
                 scores[q.competitor1.user.first_name] = (q.score1 or 0)
 
-            if q.competitor2.user.first_name in scores:
-                scores[q.competitor2.user.first_name] = scores[q.competitor2.user.first_name]+(q.score2 or 0)
-            else:
+        if q.competitor2.user.first_name in scores:
+            scores[q.competitor2.user.first_name] = scores[q.competitor2.user.first_name]+(q.score2 or 0)
+        else:
+            if q.competitor2.nationality.code == selected_country or not selected_country:
                 scores[q.competitor2.user.first_name] = (q.score2 or 0)
-        scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)[:5]
-    else:
-        scores = []
-    print scores
-
-    return render_to_response('quiz/scoreboard.html', {'cats':categories, 'scores':scores}, context_instance=RequestContext(request))
+    scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)[:5]
+    return render_to_response('quiz/scoreboard.html', {'cats':categories, 'category':int(category) if category else category, 'countries':countries, 'selected_country':selected_country, 'scores':scores}, context_instance=RequestContext(request))
 
 
 def add_question(request):
