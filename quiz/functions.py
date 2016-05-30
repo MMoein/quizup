@@ -22,7 +22,7 @@ def make_challenge(challenger, challengee, category, _send_mail=True):
 def achievements(user):
     userprofile = UserProfile.objects.get(user=user)
     quizs = Quiz.objects.filter(Q(competitor1=userprofile) | Q(competitor2=userprofile))
-    achiv1 = len(quizs)>=10
-    achiv2 = len(set(quizs.values_list('category',flat=True)))>5
-    achiv3 = userprofile.time_in_quiz >= 10*60
+    achiv1 = len(quizs)>=3
+    achiv2 = len(set(quizs.values_list('category',flat=True)))>2
+    achiv3 = userprofile.time_in_quiz >= 1*60
     return [achiv1,achiv2,achiv3]
