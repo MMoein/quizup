@@ -122,6 +122,95 @@ def add_category(request):
                                    'error_message': errors},
                                   context_instance=RequestContext(request))
 
+def challenge_offline(request, quiz_id):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login'))
+
+    quiz = Quiz.objects.get(pk=quiz_id)
+    challenger = quiz.competitor1
+    challengee = quiz.competitor2
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    if request.user != challengee.user and request.user != challenger.user:
+        raise Http404()
+    now_score = 0
+    if request.method == 'POST':
+        points = 0
+        if quiz.competitor1 == user_profile:
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count1])
+            quiz.answerd1 = False
+            quiz.valid1 = False
+            quiz.save()
+        elif quiz.competitor2 == user_profile:
+            question = Question.objects.get(pk=quiz.questions[quiz.answered_count2])
+            quiz.answerd2 = False
+            quiz.valid2 = False
+            quiz.save()
+        else:
+            raise Http404()
+        # calculate points
+        if request.POST.get('question', None) == question.choice1:
+            if challenger.user == request.user:
+                time = request.POST.get('timer', '0')
+                if time == "":
+                    time = '0'
+                time_diff = int(time)
+                challenger.time_in_quiz += time_diff
+                challenger.save()
+                points = max(20 - time_diff, 0)
+            else:
+                time = request.POST.get('timer', '0')
+                if time == "":
+                    time = '0'
+                time_diff = int(time)
+                challengee.time_in_quiz += time_diff
+                challengee.save()
+                points = max(20 - time_diff, 0)
+        # update the quiz
+        if challenger.user == request.user:
+            quiz.answered_count1 += 1
+            quiz.start_time1 = datetime.now(timezone.utc)
+            quiz.score1 += points
+            now_score = quiz.score1
+            quiz.save()
+        else:
+            quiz.answered_count2 += 1
+            quiz.start_time2 = datetime.now(timezone.utc)
+            quiz.score2 += points
+            now_score = quiz.score2
+            quiz.save()
+
+    if challenger.user == request.user:
+        if quiz.answered_count1 == 0:
+            quiz.start_time1 = datetime.now(timezone.utc)
+            quiz.save()
+
+        if quiz.answered_count1 >= len(quiz.questions):
+            return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
+
+        question_id = quiz.questions[quiz.answered_count1]
+        question = Question.objects.get(id=question_id)
+        f1 = InlineQuestionForm(question=question)
+    else:
+        if quiz.answered_count2 == 0:
+            quiz.start_time2 = datetime.now(timezone.utc)
+            quiz.save()
+
+        if quiz.answered_count2 >= len(quiz.questions):
+            result_link = "http://" + "challenger.tk" + "/result/" + str(quiz_id)
+            send_mail('Challenge result', result_link, DEFAULT_FROM_EMAIL,
+                      [challenger.user.email, challengee.user.email], fail_silently=False)
+            return redirect(reverse('result', kwargs={'quiz_id': quiz_id}))
+
+        question_id = quiz.questions[quiz.answered_count2]
+        question = Question.objects.get(id=question_id)
+        f1 = InlineQuestionForm(question=question)
+    return render_to_response('quiz/challenge_offline.html',
+                              {'quiz': quiz,
+                               'form': f1,
+                               'score': now_score},
+                              context_instance=RequestContext(request))
+
+
 
 def challenge(request, quiz_id):
     if not request.user.is_authenticated():
@@ -274,7 +363,7 @@ def make_quiz(request):
                                           context_instance=RequestContext(request))
 
             quiz_id = make_challenge(challenger_user, challengee_user, category)
-            return HttpResponseRedirect('/quiz/challenge/' + str(quiz_id))
+            return HttpResponseRedirect('/quiz/challenge/offline/' + str(quiz_id))
         else:
             raise Http404()
 

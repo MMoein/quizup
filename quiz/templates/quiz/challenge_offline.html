@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block extra_head %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2 panel panel-success" >
+            <div class="row panel-heading" style="text-align: center;">خود</div>
+            <div class="row panel-body" id="self" style="text-align: center;"></div>
+        </div>
+        <div class="col-md-6">
+     <form id="challenge_form" method="post" action="" class="form well well-sm"
+                            enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+
+                        <input type="hidden" id="timer" name="timer"/>
+                        <p align="center" id="demo">0</p>
+
+     </form>
+
+    </div>
+        <div class="col-md-1  panel panel-danger" >
+            <div class="row panel-heading" style="text-align: center;">
+                حریف
+            </div>
+            <div class="row panel-body" id="opponent" style="text-align: center;">
+
+            </div>
+        </div>
+    </div>
+
+<script>
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+var t = 0;
+var l = [];
+$("#challenge_form").find('input').not("input[name='csrfmiddlewaretoken']").map(function () {
+    l.push(this.value);
+})
+
+$("#id_question_0").hide();
+$("#id_question_1").hide();
+$("#id_question_2").hide();
+$("#id_question_3").hide();
+$('input[type=radio]').on('change', function() {
+    $(this).parent().parent().addClass("alert alert-warning");
+    $(this).closest("form").submit();
+});
+
+$.ajax(
+{
+    url: "/quiz/{{quiz.id}}/stats/",
+    type: 'GET',
+    dataType: 'json',
+    accept: 'application/json',
+    success: function(data)
+    {
+        console.log(data);
+        $("#self").text(data["self_score"])
+        $("#opponent").text(data["opponent_score"])
+
+    }
+});
+
+var myVar = setInterval(myTimer ,1000);
+var d = 0;
+function myTimer() {
+
+    if (t == 0){
+    d = d+1;
+        if(d>19){
+            $("#challenge_form").submit();
+        }
+    }
+    document.getElementById("demo").innerHTML = d
+    document.getElementById("timer").value = d
+
+$.ajax(
+{
+    url: "/quiz/{{quiz.id}}/stats/",
+    type: 'GET',
+    dataType: 'json',
+    accept: 'application/json',
+    success: function(data)
+    {
+        $("#self").text(data["self_score"]);
+        $("#opponent").text(data["opponent_score"]);
+        var temp = data["answered"];
+
+    }
+});
+}
+</script>
+{% endblock %}
